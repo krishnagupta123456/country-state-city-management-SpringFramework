@@ -20,13 +20,30 @@ public class CountryService {
     public List<Country> getCountry(){
         return countryRepository.findAll();
     }
-    public Country editCountry(Country country){
-        return  countryRepository.save(country);
-    }
-    public boolean deleteCountry(int id){
+    public Country getCountryById(long id) {
         Optional<Country> country = countryRepository.findById(id);
-        if(country.isPresent()){
-            countryRepository.delete(country.get());
+        if (country.isPresent()) {
+            return country.get();
+        } else {
+            throw new RuntimeException("Country not found with ID: " + id);
+        }
+    }
+
+    public Country editCountry(long id, Country country) {
+        Country existingCountry = countryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Country not found"));
+
+        existingCountry.setName(country.getName());
+        existingCountry.setCode(country.getCode());
+        existingCountry.setCapital(country.getCapital());
+        existingCountry.setPopulation(country.getPopulation());
+
+
+        return countryRepository.save(existingCountry);
+    }
+    public boolean deleteCountry(long id) {
+        if (countryRepository.existsById(id)) {
+            countryRepository.deleteById(id);
             return true;
         }
         return false;
